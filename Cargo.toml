@@ -2,6 +2,8 @@
 name = "whistle-proxy-rule-parser"
 version = "0.1.0"
 edition = "2021"
+description = "Parse proxy rule set of whistle."
+license = "Apache-2.0"
 
 [dependencies]
 nom = "7.1.3"
