@@ -14,6 +14,8 @@ use nom::{
     IResult,
 };
 
+pub mod markdown_values;
+
 #[derive(Debug, Clone)]
 pub struct Uri {
     pub scheme: String,
