@@ -85,13 +85,13 @@ fn not_space(s: &str) -> IResult<&str, &str> {
   take_while1(|c:char| !c.is_whitespace())(s)
 }
 
-fn parse_escaped(input: &str) -> IResult<&str, TemplatePart> {
+pub fn parse_escaped(input: &str) -> IResult<&str, TemplatePart> {
     let (input, _) = tag("\\")(input)?;
     let (input, escaped) = none_of("\\")(input)?;
     Ok((input, TemplatePart::RawString(escaped.to_string())))
 }
 
-fn parse_template_string(input: &str) -> IResult<&str, TemplateString> {
+pub fn parse_template_string(input: &str) -> IResult<&str, TemplateString> {
     let original_input = input;
     let (mut input, bracket) = opt(char1('('))(input)?;
     if bracket.is_some() {
@@ -108,7 +108,7 @@ fn parse_template_string(input: &str) -> IResult<&str, TemplateString> {
     Ok((input, TemplateString { parts }))
 }
 
-fn parse_uri(input: &str) -> IResult<&str, Uri> {
+pub fn parse_uri(input: &str) -> IResult<&str, Uri> {
     let (input, (scheme, host, path, query)) = tuple((
         opt(terminated(
             take_while1(|c: char| c.is_alphanumeric()),
@@ -130,7 +130,7 @@ fn parse_uri(input: &str) -> IResult<&str, Uri> {
     ))
 }
 
-fn parse_rule_value(input: &str) -> IResult<&str, OpValue> {
+pub fn parse_rule_value(input: &str) -> IResult<&str, OpValue> {
     let (input, opval) = alt((
         map(delimited(char1('`'), take_while(|c: char|c != ' ' && c != '\t' && c != '`'), char1('`')), |s:&str| OpValue::TemplateString(parse_template_string(s).unwrap().1)),
         map(delimited(char1('('), take_while(|c: char|c != ' ' && c != '\t' && c != ')'), char1(')')), |s:&str| OpValue::Inline(s.to_string())),
@@ -144,7 +144,7 @@ fn parse_rule_value(input: &str) -> IResult<&str, OpValue> {
     ))
 }
 
-fn parse_rule(input: &str) -> IResult<&str, Rule> {
+pub fn parse_rule(input: &str) -> IResult<&str, Rule> {
     let (input, (name, value)) = tuple((
         terminated(take_while1(|c: char| c.is_alphanumeric()), tag("://")),
         map(take_while(|c: char| !c.is_whitespace()), |s:&str| parse_rule_value(s)),
@@ -161,11 +161,11 @@ fn parse_rule(input: &str) -> IResult<&str, Rule> {
     ))
 }
 
-fn get_part(input: &str) -> IResult<&str, &str> {
+pub fn get_part(input: &str) -> IResult<&str, &str> {
     preceded(multispace0, take_till1(|c: char| c.is_whitespace()))(input)
 }
 
-fn get_rules(input: &str) -> IResult<&str, Vec<Rule>> {
+pub fn get_rules(input: &str) -> IResult<&str, Vec<Rule>> {
   let (rest, rules) = preceded(whitespace, separated_list0(whitespace, map(not_space, |s:&str|  {
     parse_rule(s).unwrap().1
 }))).parse(input)?;
