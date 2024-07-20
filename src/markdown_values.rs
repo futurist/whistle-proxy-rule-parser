@@ -1,10 +1,10 @@
 /// fork from: https://github.com/hgm-king/prose
 use nom::{
     branch::alt,
-    bytes::complete::{is_not, tag, take, take_while1},
+    bytes::complete::{is_not, tag, take},
     combinator::{map, not},
     multi::{many0, many1},
-    sequence::{delimited, pair, preceded, terminated, tuple},
+    sequence::{delimited, preceded, terminated, tuple},
     IResult,
 };
 
@@ -82,7 +82,6 @@ pub fn into_parts(md_arr: Vec<Markdown>) -> (String, Vec<(String, String)>) {
                     lines.push_str(&s);
                     lines.push('\n');
                   }
-                  _ => unreachable!(),
               }
             }
             Markdown::Codeblock(name, value) => {

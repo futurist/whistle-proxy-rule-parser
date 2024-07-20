@@ -1,14 +1,14 @@
 use nom::character::is_space;
 use nom::combinator::all_consuming;
-use nom::error::{context, ErrorKind, ParseError};
+use nom::error::{ErrorKind, ParseError};
 use nom::Err::Error;
-use nom::character::complete::{none_of, space0};
+use nom::character::complete::{none_of};
 use nom::multi::separated_list0;
 use nom::Parser;
-use nom::{branch::alt, bytes::complete::is_not, multi::many0, sequence::delimited};
+use nom::{branch::alt, multi::many0, sequence::delimited};
 use nom::{
     bytes::complete::{tag, take_until, take_till1, take_while, take_while1},
-    character::complete::{multispace0, multispace1, space1, char as char1},
+    character::complete::{multispace0, char as char1},
     combinator::{opt, map},
     sequence::{preceded, terminated, tuple},
     IResult,
