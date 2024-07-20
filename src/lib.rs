@@ -24,6 +24,17 @@ pub struct Uri {
     pub query: String,
 }
 
+impl ToString for Uri {
+    fn to_string(&self) -> String {
+        format!("{}://{}{}{}", self.scheme, self.host, self.path, self.query)
+    }
+}
+impl PartialEq for Uri {
+    fn eq(&self, other: &Self) -> bool {
+        self.scheme == other.scheme && self.host == other.host && self.path == other.path && self.query == other.query
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum OpValue {
     Inline(String),
@@ -202,4 +213,22 @@ pub fn parse_proxy_rule(input: &str) -> IResult<&str, ProxyRule> {
         rules,
       }
     ))
+}
+
+#[cfg(test)]
+mod test {
+  use super::*;
+  #[test]
+  fn test_uri_to_string(){
+    let str = "http://localhost:8888/x?a=1";
+    let (input, uri) = parse_uri(str).unwrap();
+    assert_eq!(input, "");
+    assert_eq!(uri, Uri {
+      scheme: "http".into(),
+      host: "localhost:8888".into(),
+      path: "/x".into(),
+      query: "?a=1".into(),
+    });
+    assert_eq!(uri.to_string(), str);
+  }
 }
