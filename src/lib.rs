@@ -2,7 +2,7 @@ use nom::character::is_space;
 use nom::combinator::all_consuming;
 use nom::error::{ErrorKind, ParseError};
 use nom::Err::Error;
-use nom::character::complete::{none_of};
+use nom::character::complete::none_of;
 use nom::multi::separated_list0;
 use nom::Parser;
 use nom::{branch::alt, multi::many0, sequence::delimited};
@@ -49,13 +49,13 @@ pub struct Rule {
     pub value: OpValue,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplatePart {
     RawString(String),
     Value(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TemplateString {
     pub parts: Vec<TemplatePart>,
 }
@@ -108,13 +108,20 @@ pub fn parse_template_string(input: &str) -> IResult<&str, TemplateString> {
     if bracket.is_some() {
         input = input.strip_suffix(")").expect(&format!("{original_input} format is wrong"));
     }
-    let (input, parts) = many0(
+    let (mut input, mut parts) = many0(
         nom::branch::alt((
             parse_escaped,
             map(preceded(tag("${"), terminated(take_until("}"), tag("}"))), |s: &str| TemplatePart::Value(s.to_string())),
             map(take_until("${"), |s: &str| TemplatePart::RawString(s.to_string())),
         )),
     )(input)?;
+
+    if parts.is_empty() {
+      let chars: Vec<char> = input.chars().collect();
+      let s: String = chars[1..chars.len()-1].into_iter().collect();
+      parts.push(TemplatePart::RawString(s));
+      input = "";
+    }
 
     Ok((input, TemplateString { parts }))
 }
@@ -230,5 +237,12 @@ mod test {
       query: "?a=1".into(),
     });
     assert_eq!(uri.to_string(), str);
+  }
+  #[test]
+  fn test_template_string(){
+    let str = "`x=1&b=2`";
+    let (input, ts) = parse_template_string(str).unwrap();
+    assert_eq!(input, "");
+    assert_eq!(ts.parts, vec![TemplatePart::RawString("x=1&b=2".into())]);
   }
 }
