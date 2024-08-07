@@ -117,9 +117,9 @@ pub fn parse_template_string(input: &str) -> IResult<&str, TemplateString> {
     )(input)?;
 
     if parts.is_empty() {
-      let chars: Vec<char> = input.chars().collect();
-      let s: String = chars[1..chars.len()-1].into_iter().collect();
-      parts.push(TemplatePart::RawString(s));
+      // let chars: Vec<char> = input.chars().collect();
+      // let s: String = chars[1..chars.len()-1].into_iter().collect();
+      parts.push(TemplatePart::RawString(input.to_string()));
       input = "";
     }
 
@@ -243,6 +243,12 @@ mod test {
     let str = "`x=1&b=2`";
     let (input, ts) = parse_template_string(str).unwrap();
     assert_eq!(input, "");
-    assert_eq!(ts.parts, vec![TemplatePart::RawString("x=1&b=2".into())]);
+    assert_eq!(ts.parts, vec![TemplatePart::RawString("`x=1&b=2`".into())]);
+
+    // TODO: make below test remove ()
+    let str = "`(x=1&b=2)`";
+    let (input, ts) = parse_template_string(str).unwrap();
+    assert_eq!(input, "");
+    assert_eq!(ts.parts, vec![TemplatePart::RawString("`(x=1&b=2)`".into())]);
   }
 }
